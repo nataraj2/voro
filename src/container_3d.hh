@@ -289,6 +289,7 @@ class container_3d : public container_base_3d, public radius_mono {
             fclose(fp);
         }
         void print_custom(const char *format,FILE *fp=stdout);
+        void print_custom(bool is_nei);
         /** Computes all the Voronoi cells and saves customized information about them.
          * \param[in] format the custom output string to use.
          * \param[in] filename the name of the file to write to. */

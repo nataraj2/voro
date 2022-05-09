@@ -12,7 +12,7 @@ include config.mk
 # Build all of the executable files
 all:
 	$(MAKE) -C src
-	$(MAKE) -C examples
+	#$(MAKE) -C examples
 
 # Build the help files (with Doxygen)
 help:

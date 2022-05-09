@@ -10,6 +10,9 @@
 #include "config.hh"
 #include "common.hh"
 #include "cell_3d.hh"
+#include "Cell.H"
+
+#include <iostream>
 
 namespace voro {
 
@@ -2147,6 +2150,26 @@ void voronoicell_base_3d::output_vertices(double x,double y,double z,FILE *fp) {
     }
 }
 
+void voronoicell_base_3d::cell_vertices(double x,double y,double z,int count_cells) {
+    if(p>0) {
+		int id = cell[count_cells].id;
+		cell[id].vert.emplace_back();
+		int vcount = cell[id].vert.size()-1;
+		cell[id].vert[vcount].x = x+*pts*0.5;
+		cell[id].vert[vcount].y = y+pts[1]*0.5;
+		cell[id].vert[vcount].z = z+pts[2]*0.5;
+	
+        for(double *ptsp=pts+4;ptsp<pts+(p<<2);ptsp+=4){
+			 cell[id].vert.emplace_back();
+			 vcount = cell[id].vert.size()-1;
+			 cell[id].vert[vcount].x = x+*ptsp*0.5;
+			 cell[id].vert[vcount].y = y+ptsp[1]*0.5;
+			 cell[id].vert[vcount].z = z+ptsp[2]*0.5;	 
+		}
+		cell[id].numverts = cell[id].vert.size();
+    }
+}
+
 /** This routine returns the perimeters of each face.
  * \param[out] v the vector to store the results in. */
 void voronoicell_base_3d::face_perimeters(std::vector<double> &v) {
@@ -2371,6 +2394,13 @@ int voronoicell_base_3d::number_of_edges() {
     return edges>>1;
 }
 
+
+
+
+
+
+
+
 /** Outputs a custom string of information about the Voronoi cell. The string
  * of information follows a similar style as the C printf command, and detailed
  * information about its format is available at
@@ -2494,6 +2524,43 @@ void voronoicell_base_3d::output_custom(const char *format,int i,double x,double
     }
     putc('\n',fp);
 }
+
+void voronoicell_base_3d::output_custom(int i,double x,double y,double z,double r, int count_cells, bool is_nei) {
+    std::vector<int> vi, vi2;
+    std::vector<double> vd;
+
+    // Get cellid_nverts_nfaces - id, nverts, nfaces
+
+    if(!is_nei){
+        if(cell.size()==0){
+            std::cout << "Total cell count is " << total_cell_count << "\n";
+            cell.resize(total_cell_count);
+        }
+
+        cell[count_cells].id = i;
+        cell[i].numverts = p;
+        cell[i].numfaces = number_of_faces();
+
+        face_orders(vi);
+		//cout << "done face orders " << "\n";
+        nedges_in_faces(vi, count_cells);
+		//cout << "done nedges in faces" << "\n";
+
+        face_vertices(vi2);
+		//cout << "done face vertiecs " << "\n";
+        nodecon_for_face(vi2, count_cells);
+		//cout << "done nodecon for faces" << "\n";
+
+        cell_vertices(x,y,z,count_cells);
+    }
+
+    if(is_nei){
+        // Get cell neighbors
+        neighbors(vi);
+        cell_neighbors(vi, count_cells);
+    }
+}
+
 
 /** This initializes the class to be a rectangular box. It calls the base class
  * initialization routine to set up the edge and vertex information, and then

@@ -7,6 +7,11 @@
 #include "container_3d.hh"
 #include "iter_3d.hh"
 
+#include "Cell.H"
+
+std::vector<Cell> cell;
+int total_cell_count = 0;
+
 namespace voro {
 
 /** The class constructor sets up the geometry of container, initializing the
@@ -689,7 +694,11 @@ void container_base_3d::add_particle_memory(int i) {
 void container_3d::import(FILE *fp) {
     int i,j;
     double x,y,z;
-    while((j=fscanf(fp,"%d %lg %lg %lg",&i,&x,&y,&z))==4) {put(i,x,y,z);}
+	total_cell_count = 0;
+    while((j=fscanf(fp,"%d %lg %lg %lg",&i,&x,&y,&z))==4) {
+		put(i,x,y,z);
+		total_cell_count++;
+	}
     put_reconcile_overflow();
     if(j!=EOF) voro_fatal_error("File import error",VOROPP_FILE_ERROR);
 }
@@ -868,6 +877,31 @@ void container_3d::print_custom(const char *format,FILE *fp) {
             ij=cli->ijk;q=cli->q;
             pp=p[ij]+3*q;
             c.output_custom(format,id[ij][q],*pp,pp[1],pp[2],default_radius,fp);
+        }
+    }
+}
+
+
+void container_3d::print_custom(bool is_nei) {
+    int ij,q;double *pp;
+	if(!is_nei)cell.resize(0);
+    if(is_nei) {
+        int count_cells = 0;
+        voronoicell_neighbor_3d c(*this);
+        for(iterator cli=begin();cli<end();cli++) if(compute_cell(c,cli)) {
+            ij=cli->ijk;q=cli->q;
+            pp=p[ij]+3*q;
+            c.output_custom(id[ij][q],*pp,pp[1],pp[2],default_radius,count_cells,is_nei);
+            count_cells++;
+        }
+    } else {
+        int count_cells = 0;
+        voronoicell_3d c(*this);
+        for(iterator cli=begin();cli<end();cli++) if(compute_cell(c,cli)) {
+            ij=cli->ijk;q=cli->q;
+            pp=p[ij]+3*q;
+            c.output_custom(id[ij][q],*pp,pp[1],pp[2],default_radius,count_cells,is_nei);
+            count_cells++;
         }
     }
 }

@@ -148,6 +148,7 @@ class voronoicell_base_3d {
         void output_vertices(double x,double y,double z,FILE *fp=stdout);
         void output_vertices(int pr,double x,double y,double z,FILE *fp=stdout) {}; //**********
         void face_areas(std::vector<double> &v);
+		void cell_vertices(double x,double y,double z,int count_cells);
         void minkowski(double r,double &ar,double &vo);
         /** Outputs the areas of the faces.
          * \param[in] fp the file handle to write to. */
@@ -195,6 +196,7 @@ class voronoicell_base_3d {
          * \param[in] fp the file handle to write to. */
         inline void output_custom(const char *format,FILE *fp=stdout) {output_custom(format,0,0,0,0,default_radius,fp);}
         void output_custom(const char *format,int i,double x,double y,double z,double r,FILE *fp=stdout);
+        void output_custom(int i,double x,double y,double z,double r,int count_cells, bool is_nei);
         template<class vc_class>
         bool nplane(vc_class &vc,double x,double y,double z,double rsq,int p_id);
         bool plane_intersects(double x,double y,double z,double rsq);

@@ -6,6 +6,8 @@
 
 #include "common.hh"
 
+#include "Cell.H"
+
 namespace voro {
 
 void check_duplicate(int n,double x,double y,double z,int id,double *qp) {
@@ -156,6 +158,144 @@ void voro_print_vector(int pr,std::vector<double> &v,FILE *fp) {
         else fprintf(fp,"%.*g",pr,v[k]);
     }
 }
+
+void cell_neighbors(std::vector<int> &v, int count_cells){
+    int k=0,s=v.size();
+    int id = cell[count_cells].id;
+    cell[id].numnei = s;
+    while(k+4<s) {
+        for(int j=0; j<4;j++){
+            cell[id].nei.emplace_back();
+            int size = cell[id].nei.size()-1;
+            cell[id].nei[size] = v[k+j];
+        }
+        k+=4;
+    }
+    if(k+3<=s) {
+        if(k+4==s){
+            for(int j=0; j<4;j++){
+                cell[id].nei.emplace_back();
+                int size = cell[id].nei.size()-1;
+                cell[id].nei[size] = v[k+j];
+            }
+        }
+        else{
+            for(int j=0; j<3;j++){
+                cell[id].nei.emplace_back();
+                int size = cell[id].nei.size()-1;
+                cell[id].nei[size] = v[k+j];
+            }
+        }
+    } else {
+        if(k+2==s){
+            for(int j=0; j<2;j++){
+                cell[id].nei.emplace_back();
+                int size = cell[id].nei.size()-1;
+                cell[id].nei[size] = v[k+j];
+            }
+        }
+        else{
+            for(int j=0; j<1;j++){
+                cell[id].nei.emplace_back();
+                int size = cell[id].nei.size()-1;
+                cell[id].nei[size] = v[k+j];
+            }
+        }
+    }
+}
+
+void nedges_in_faces(std::vector<int> &v, int count_cells){
+    int k=0,s=v.size();
+    int id = cell[count_cells].id;
+    cell[id].numfaces = s;
+    while(k+4<s) {
+        for(int j=0; j<4;j++){
+            cell[id].face.emplace_back();
+            int size = cell[id].face.size()-1;
+            cell[id].face[size].numverts = v[k+j];
+        }
+        k+=4;
+    }
+    if(k+3<=s) {
+        if(k+4==s){
+            for(int j=0; j<4;j++){
+                cell[id].face.emplace_back();
+                int size = cell[id].face.size()-1;
+                cell[id].face[size].numverts = v[k+j];
+            }
+        }
+        else{
+            for(int j=0; j<3;j++){
+                cell[id].face.emplace_back();
+                int size = cell[id].face.size()-1;
+                cell[id].face[size].numverts = v[k+j];
+            }
+        }
+    } else {
+        if(k+2==s){
+            for(int j=0; j<2;j++){
+                cell[id].face.emplace_back();
+                int size = cell[id].face.size()-1;
+                cell[id].face[size].numverts = v[k+j];
+            }
+        }
+        else{
+            for(int j=0; j<1;j++){
+                cell[id].face.emplace_back();
+                int size = cell[id].face.size()-1;
+                cell[id].face[size].numverts = v[k+j];
+            }
+        }
+    }
+}
+
+
+void nodecon_for_face(std::vector<int> &v, int count_cells) {
+    int j,k=0,l;
+    int id = cell[count_cells].id;
+    int count_faces = 0;
+    if(v.size()>0) {
+        l=v[k++];
+        if(l<=1) {
+            //if(l==1) fprintf(fp,"%d)",v[k++]);
+            //else fputs("()",fp);
+        } else {
+            j=k+l;
+             cell[id].face[count_faces].vert.emplace_back();
+             int vcount = cell[id].face[count_faces].vert.size();
+             cell[id].face[count_faces].vert[vcount-1].id = v[k];
+             k++;
+            while(k<j){
+                cell[id].face[count_faces].vert.emplace_back();
+                vcount = cell[id].face[count_faces].vert.size();
+                cell[id].face[count_faces].vert[vcount-1].id = v[k];
+                k++;
+            }
+            count_faces++;
+        }
+        while((unsigned int) k<v.size()) {
+            l=v[k++];
+            if(l<=1) {
+                //if(l==1) fprintf(fp," %d)",v[k++]);
+                //else fputs(" ()",fp);
+            } else {
+                j=k+l;
+                cell[id].face[count_faces].vert.emplace_back();
+                int vcount = cell[id].face[count_faces].vert.size();
+                cell[id].face[count_faces].vert[vcount-1].id = v[k];
+                k++;
+                while(k<j){
+                    cell[id].face[count_faces].vert.emplace_back();
+                    vcount = cell[id].face[count_faces].vert.size();
+                    cell[id].face[count_faces].vert[vcount-1].id = v[k];
+                    k++;
+                }
+                count_faces++;
+            }
+        }
+    }
+}
+
 
 /** \brief Prints a vector a face vertex information.
  *

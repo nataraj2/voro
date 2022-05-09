@@ -28,6 +28,11 @@ void voro_print_vector(int pr,std::vector<double> &v,FILE *fp=stdout);
 void voro_print_face_vertices(std::vector<int> &v,FILE *fp=stdout);
 bool voro_contains_neighbor(const char *format);
 bool voro_read_precision(FILE *fp,char *&fmp,int &pr);
+
+void cell_neighbors(std::vector<int> &v, int count_cells);
+void nedges_in_faces(std::vector<int> &v, int count_cells);
+void nodecon_for_face(std::vector<int> &v, int count_cells);
+
 }
 
 #endif
